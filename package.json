@@ -1,0 +1,27 @@
+{
+  "name": "projeto13-batepapo-uol-api",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "API de uma cópia do Bate Papo UOL",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d-philipi/api-bate-papo-uol.git"
+  },
+  "author": "Daniel Philipi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/d-philipi/api-bate-papo-uol/issues"
+  },
+  "homepage": "https://github.com/d-philipi/api-bate-papo-uol#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongodb": "^4.11.0",
+    "nodemon": "^2.0.20"
+  }
+}
