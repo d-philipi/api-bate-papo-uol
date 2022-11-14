@@ -159,8 +159,41 @@ app.post("/status", async (req, res) => {
     const { user } = req.headers;
 
     if(!user){
-        res.sendStatus(404);
+            res.sendStatus(404);
+    }
+
+    try{
+        const userVerification = await db.collection("participants").findOne({ name: new user });
+
+        await userVerification.updateOne({ 
+			lastStatus: user.lastStatus
+		}, { $set: Date.now() })
+
+    }catch (err){
+        res.status(500).send(err);
     }
 })
+
+setInterval(async () => {
+    const participantes = await db.collection("participants").find().toArray();
+    const inativos = participantes.filter(usuario => Date.now()- usuario.lastStatus >= 10);
+
+    try {
+        for(let i = 0; i < inativos.length; i++){
+            await db.collection("participants").deleteOne({ name: inativos.name});
+            db.collection("messages").insert({
+                from: inativos.name, 
+                to: 'Todos', 
+                text: 'sai da sala...', 
+                type: 'status', 
+                time: dayjs().format('HH:mm:ss')
+            })
+        }
+        res.status(200).send({ message: "Documento apagado com sucesso!" });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({ message: err.message });
+    }
+}, 15000);
 
 app.listen(5000, () => console.log("Server running in port: 5000"))
