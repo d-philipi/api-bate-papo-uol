@@ -90,11 +90,11 @@ app.get("/participants", async (req, res) => {
 
 app.post("/messages", async (req, res) => {
 
-    const { user } = req.header;
+    const { user } = req.headers;
     const { to, text, type } = req.body;
 
     const validationMensage = mensagemSchema.validate(req.body, { abortEarly: false });
-    const validationHeader = headerSchema.validate(req.header);
+    const validationHeader = headerSchema.validate(req.headers);
     const participantes = await db.collection("participants").find().toArray();
     const usuarioExistente = participantes.find(usuario => usuario.name === user);
 
@@ -132,17 +132,35 @@ app.post("/messages", async (req, res) => {
 
 app.get("/messages", async (req, res) => {
 
+    const { user } = req.headers;
     const { limit } = parseInt(req.query.limit);
+
+    if(limit){
+        try{
+            const mensagens = await db.collection("messages").find().toArray();
+            const mensagensUsuario = mensagens.filter(mensage => mensage.to.toLowerCase() === "todos" || mensage.to.toLowerCase() === user.toLowerCase());
+            res.send(mensagensUsuario.slice(-limit).reverse());
+        }catch(err){
+            res.sendStatus(500).send("")
+        }
+    }
 
     try{
         const mensagens = await db.collection("messages").find().toArray();
-        res.send(mensagens);
+        const mensagensUsuario = mensagens.filter(mensage => mensage.to.toLowerCase() === "todos" || mensage.to.toLowerCase() === user.toLowerCase());
+        res.send(mensagensUsuario.reverse());
     }catch(err){
         res.sendStatus(500).send("")
     }
 
 })
 
-app.post("/status", async (req, res) => {})
+app.post("/status", async (req, res) => {
+    const { user } = req.headers;
+
+    if(!user){
+        res.sendStatus(404);
+    }
+})
 
 app.listen(5000, () => console.log("Server running in port: 5000"))
